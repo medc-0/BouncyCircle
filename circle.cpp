@@ -1,6 +1,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <ctime>
 
 #define WIDTH 900
 #define HEIGHT 600
@@ -15,6 +16,11 @@ struct Circle {
     Circle(float x, float y, float radius)
     : x(x), y(y), radius(radius), vy(0.0f) {}
 };
+
+float randomize_num() 
+{   
+    return 0.2f + (rand() / (float)RAND_MAX) * (0.9f - 0.2f);
+}
 
 int SDL_RenderFillCircle(SDL_Renderer * renderer, Circle circle)
 {
@@ -67,11 +73,12 @@ void fall_circle(Circle& c)
 
     if (c.y + c.radius > HEIGHT) {
         c.y = HEIGHT - c.radius;
-        c.vy = 0;
+        c.vy = -c.vy * randomize_num();        
     }
 }
 
 int main() {
+    srand(static_cast<unsigned>(time(NULL)));
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
         return 1;
