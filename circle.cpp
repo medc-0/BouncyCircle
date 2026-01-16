@@ -5,12 +5,15 @@
 #define WIDTH 900
 #define HEIGHT 600
 
-struct Circle {
-    int x, y;
-    float radius;
+constexpr float GRAVITY = 0.5f;
 
-    Circle(int x, int y, float radius)
-    : x(x), y(y), radius(radius) {}
+struct Circle {
+    float x, y;
+    float radius;
+    float vy;
+
+    Circle(float x, float y, float radius)
+    : x(x), y(y), radius(radius), vy(0.0f) {}
 };
 
 int SDL_RenderFillCircle(SDL_Renderer * renderer, Circle circle)
@@ -57,6 +60,17 @@ int SDL_RenderFillCircle(SDL_Renderer * renderer, Circle circle)
     return status;
 }
 
+void fall_circle(Circle& c) 
+{   
+    c.vy += GRAVITY;
+    c.y += c.vy;
+
+    if (c.y + c.radius > HEIGHT) {
+        c.y = HEIGHT - c.radius;
+        c.vy = 0;
+    }
+}
+
 int main() {
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -70,7 +84,8 @@ int main() {
         return 1;
     }
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    Circle circle(WIDTH / 2, HEIGHT / 2, 30.0f);
+
+    Circle circle(WIDTH / 2.0f, HEIGHT / 2.0f, 30.0f);
 
     bool running = true;
     SDL_Event event;
@@ -84,6 +99,7 @@ int main() {
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
         SDL_RenderFillCircle(renderer, circle);
         SDL_RenderPresent(renderer);
+        fall_circle(circle);
     }
 
     SDL_DestroyWindow(window);
