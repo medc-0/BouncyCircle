@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <ctime>
+#include <vector>
 
 #define WIDTH 900
 #define HEIGHT 600
@@ -93,6 +94,8 @@ int main() {
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     Circle circle(WIDTH / 2.0f, HEIGHT / 2.0f, 30.0f);
+    std::vector<Circle> circles;
+    circles.reserve(10);
 
     bool running = true;
     SDL_Event event;
@@ -100,13 +103,25 @@ int main() {
     while (running) {
         while(SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) running = false;
+
+            if (event.type == SDL_KEYDOWN) {
+                if (event.key.keysym.sym == SDLK_s) {
+                    if (circles.size() < 10) {
+                        circles.emplace_back(WIDTH / 2.0f, 50.0f, 30.0f);
+                    }
+                }
+            }
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
+
         SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-        SDL_RenderFillCircle(renderer, circle);
+
+        for (auto& c : circles) {
+            fall_circle(c);
+            SDL_RenderFillCircle(renderer, c);
+        }
         SDL_RenderPresent(renderer);
-        fall_circle(circle);
     }
 
     SDL_DestroyWindow(window);
